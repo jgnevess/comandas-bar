@@ -40,10 +40,10 @@ Sistema completo para controle de vendas, com autenticação por perfil, control
 - Spring Security (JWT)
 - JPA / Hibernate
 
-### 🔜 Frontend
+<!-- ### 🔜 Frontend
 - React + TypeScript
 - Bootstrap 5
-
+-->
 ---
 
 ## 🗃️ Estrutura de Dados
