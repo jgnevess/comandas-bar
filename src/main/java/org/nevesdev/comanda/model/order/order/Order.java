@@ -1,14 +1,18 @@
 package org.nevesdev.comanda.model.order.order;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.nevesdev.comanda.model.order.orderItem.OrderItem;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity(name = "order_tb")
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Order {
 
     @Id
