@@ -14,6 +14,7 @@ public class ProductCreated {
     private Category category;
     private Boolean isActive;
     private Integer quantity;
+    private String code;
 
     public ProductCreated(Product product, Integer quantity) {
         this.id = product.getId();
@@ -24,6 +25,7 @@ public class ProductCreated {
         this.category = product.getCategory();
         this.isActive = product.getIsActive();
         this.quantity = quantity;
+        this.code = product.getCode();
     }
 }
 

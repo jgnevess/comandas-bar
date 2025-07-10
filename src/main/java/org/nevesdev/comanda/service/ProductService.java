@@ -10,6 +10,10 @@ import org.nevesdev.comanda.repository.ProductRepository;
 import org.nevesdev.comanda.repository.StorageRepository;
 import org.nevesdev.comanda.service.interfaces.ProductServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,12 +27,14 @@ public class ProductService implements ProductServiceInterface {
 
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
     private StorageRepository storageRepository;
 
     //endregion
 
     //region Implemented interface methods
 
+    @Override
     public ProductCreated createProduct(ProductCreate productCreate) {
         String code = RandomStringUtils.randomNumeric(4, 6);
         Product product = new Product(productCreate, code);
@@ -36,33 +42,59 @@ public class ProductService implements ProductServiceInterface {
         return new ProductCreated(product, this.createStorage(product));
     }
 
-    public List<ProductCreated> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        List<ProductCreated> productCreatedList = new ArrayList<>();
-        for(Product product : products) {
-            ProductCreated productCreated = new ProductCreated(product, this.getStorageQuantity(product));
-            productCreatedList.add(productCreated);
-        }
-        return productCreatedList;
+    @Override
+    public Page<ProductCreated> getAllProducts(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+        Page<Product> products = productRepository.findAll(pageable);
+        return products.map(product -> {
+            return new ProductCreated(product, this.getStorageQuantity(product));
+        });
     }
 
+    @Override
     public ProductCreated getById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow();
-        return new ProductCreated(product, this.getStorageQuantity(product));
+        Product product = productRepository.findById(id).orElse(null);
+        if(product == null) return null;
+        int quantity = this.getStorageQuantity(product);
+        if(quantity == -1) return null;
+        return new ProductCreated(product, quantity);
     }
 
+    @Override
     public ProductCreated updateProduct(Long id, ProductUpdate productUpdate) {
-        Product product = productRepository.findById(id).orElseThrow();
+        Product product = productRepository.findById(id).orElse(null);
+        if(product == null) return null;
         product.updateProduct(productUpdate);
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
     }
 
+    @Override
     public ProductCreated fastActiveProduct(Long id) {
         Product product = productRepository.findById(id).orElseThrow();
         product.setIsActive(!product.getIsActive());
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
+    }
+
+    @Override
+    public ProductCreated addProduct(Long id, Integer quantity) {
+        Product product = productRepository.findById(id).orElseThrow();
+        Storage storage = storageRepository.findByProduct(product).orElseThrow();
+        storage.setQuantity(storage.getQuantity() + quantity);
+        storage = storageRepository.save(storage);
+        return new ProductCreated(product, storage.getQuantity());
+    }
+
+    @Override
+    public ProductCreated removeProduct(Long id, Integer quantity) {
+        Product product = productRepository.findById(id).orElseThrow();
+        Storage storage = storageRepository.findByProduct(product).orElseThrow();
+        int value = storage.getQuantity() - quantity;
+        if(value < 0) return null;
+        storage.setQuantity(value);
+        storage = storageRepository.save(storage);
+        return new ProductCreated(product, storage.getQuantity());
     }
 
 
@@ -71,7 +103,8 @@ public class ProductService implements ProductServiceInterface {
     //region Private methods
 
     private Integer getStorageQuantity(Product product) {
-        Storage storage = storageRepository.findByProduct(product).orElseThrow();
+        Storage storage = storageRepository.findByProduct(product).orElse(null);
+        if(storage == null) return -1;
         return storage.getQuantity();
     }
 
