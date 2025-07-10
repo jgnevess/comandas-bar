@@ -1,4 +1,4 @@
-package org.nevesdev.comanda.error;
+package org.nevesdev.comanda.dto.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

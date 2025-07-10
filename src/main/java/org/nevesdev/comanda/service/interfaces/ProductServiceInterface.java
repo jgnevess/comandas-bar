@@ -1,12 +1,10 @@
 package org.nevesdev.comanda.service.interfaces;
 
-
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 public interface ProductServiceInterface {
 

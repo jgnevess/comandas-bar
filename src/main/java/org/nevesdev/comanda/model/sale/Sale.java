@@ -17,4 +17,8 @@ public class Sale {
 
     @OneToOne
     private Order order;
+
+    public Sale(Order order) {
+        this.order = order;
+    }
 }

@@ -3,7 +3,7 @@ package org.nevesdev.comanda.controller;
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
-import org.nevesdev.comanda.error.ErrorInfo;
+import org.nevesdev.comanda.dto.error.ErrorInfo;
 import org.nevesdev.comanda.service.interfaces.ProductServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

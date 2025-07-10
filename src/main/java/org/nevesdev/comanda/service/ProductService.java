@@ -3,6 +3,7 @@ package org.nevesdev.comanda.service;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
+import org.nevesdev.comanda.dto.product.ProductQuantity;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
 import org.nevesdev.comanda.model.product.Product;
 import org.nevesdev.comanda.model.storage.Storage;
@@ -17,8 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ProductService implements ProductServiceInterface {
@@ -118,4 +118,10 @@ public class ProductService implements ProductServiceInterface {
     }
 
     //endregion
+
+    protected ProductQuantity getProductById(Long id) {
+        Product p = productRepository.findById(id).orElse(null);
+        if(p == null) return null;
+        return new ProductQuantity(p, this.getStorageQuantity(p));
+    }
 }
