@@ -39,8 +39,9 @@ public class SecurityConfig {
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.HEAD).permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                                .requestMatchers(HttpMethod.POST, "auth/login").permitAll()
-                                .requestMatchers(HttpMethod.GET, "auth/valid").permitAll()
+                                .requestMatchers(HttpMethod.POST, "api/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "api/auth/register").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "api/auth/valid").permitAll()
                                 .anyRequest().authenticated()).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 

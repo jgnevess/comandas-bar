@@ -1,6 +1,8 @@
 package org.nevesdev.comanda.controller;
 
+import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.user.UserLogin;
+import org.nevesdev.comanda.dto.user.UserRegister;
 import org.nevesdev.comanda.model.user.User;
 import org.nevesdev.comanda.service.security.AuthService;
 import org.nevesdev.comanda.service.security.TokenService;
@@ -13,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("api/auth")
 public class AuthController {
 
     @Autowired
@@ -29,6 +31,11 @@ public class AuthController {
         Boolean res = !tokenService.validateToken(token).equals("");
         if(!res) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegister userRegister) {
+        return ResponseEntity.status(201).body(authService.createUser(userRegister));
     }
 
     @PostMapping("login")

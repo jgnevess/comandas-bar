@@ -1,10 +1,9 @@
 package org.nevesdev.comanda.model.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.nevesdev.comanda.dto.user.UserLogin;
+import org.nevesdev.comanda.dto.user.UserRegister;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,9 +21,16 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true, nullable = false)
     private String username;
     private String password;
     private Role role;
+
+    public User(UserRegister userRegister) {
+        this.username = userRegister.getUsername();
+        this.password = userRegister.getPasswd();
+        this.role = userRegister.getRole();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
