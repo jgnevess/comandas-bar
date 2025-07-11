@@ -11,6 +11,7 @@ import org.nevesdev.comanda.model.sale.Sale;
 import org.nevesdev.comanda.repository.OrderRepository;
 import org.nevesdev.comanda.repository.SaleRepository;
 import org.nevesdev.comanda.service.interfaces.OrderServiceInterface;
+import org.nevesdev.comanda.service.interfaces.SaleServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,7 @@ public class OrderService implements OrderServiceInterface {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private SaleRepository saleRepository;
+    private SaleService saleService;
     @Autowired
     private ProductService productService;
 
@@ -133,19 +134,18 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public Sale closeOrder(Long id, PaymentType paymentType) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return null;
+        if (order == null || order.getStatus().equals(Status.CLOSED)) return null;
         order.setPaymentType(paymentType);
         order.setStatus(Status.CLOSED);
+        order.setTotalPriceOrder();
         order = orderRepository.save(order);
-        Sale sale = new Sale(order);
-        if(order.getStatus().equals(Status.OPEN)) return null;
-        return saleRepository.save(sale);
+        return saleService.saveSale(order);
     }
 
     @Override
     public Boolean deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return false;
+        if (order == null || order.getStatus().equals(Status.CLOSED)) return false;
         orderRepository.delete(order);
         return true;
     }

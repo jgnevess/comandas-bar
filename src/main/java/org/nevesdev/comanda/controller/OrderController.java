@@ -87,8 +87,8 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
         var response = orderServiceInterface.deleteOrder(id);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao excluir a comanda", "Verificar o id da comanda")) :
-                ResponseEntity.status(200).body(response);
+        return !response ?
+                ResponseEntity.status(400).body(new ErrorInfo(404,"Erro ao excluir a comanda", "Verificar o id da comanda")) :
+                ResponseEntity.status(404).build();
     }
 }
