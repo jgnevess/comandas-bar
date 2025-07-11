@@ -14,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/auth")
 public class AuthController {
@@ -43,6 +46,8 @@ public class AuthController {
         UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userLogin.username() , userLogin.password());
         Authentication auth = this.authenticationManager.authenticate(login);
         String token = tokenService.generateToken((User) auth.getPrincipal());
-        return ResponseEntity.status(200).body(token);
+        Map<String, String> response = new HashMap<>();
+        response.put("Token", token);
+        return ResponseEntity.status(200).body(response);
     }
 }
