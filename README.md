@@ -50,7 +50,7 @@ Sistema completo para controle de vendas, com autenticação por perfil, control
 
 - **User**: id, username, password, role
 - **Product**: id, code, description, costPrice, sellingPrice, offPrice, category, isActive
-- **StockMovement**: id, product, quantity, movementDate
+- **Storage**: id, product, quantity, movementDate
 - **OrderItem**: productId, quantity, unitPrice
 - **Order**: id, clientName, orderDateTime, items, totalPrice, paymentType, status
 - **Sale**: id, orderId
