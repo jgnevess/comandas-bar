@@ -1,6 +1,6 @@
 package org.nevesdev.comanda.controller;
 
-import org.nevesdev.comanda.dto.SalePreview;
+import org.nevesdev.comanda.dto.sale.SalePreview;
 import org.nevesdev.comanda.dto.error.ErrorInfo;
 import org.nevesdev.comanda.service.interfaces.SaleServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestController

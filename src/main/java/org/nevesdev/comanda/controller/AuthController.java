@@ -1,0 +1,41 @@
+package org.nevesdev.comanda.controller;
+
+import org.nevesdev.comanda.dto.user.UserLogin;
+import org.nevesdev.comanda.model.user.User;
+import org.nevesdev.comanda.service.security.AuthService;
+import org.nevesdev.comanda.service.security.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("auth")
+public class AuthController {
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @GetMapping(value = "valid")
+    public ResponseEntity<?> tokenIsValid(@RequestParam String token) {
+        Boolean res = !tokenService.validateToken(token).equals("");
+        if(!res) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<?> login(@RequestBody UserLogin userLogin) {
+        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userLogin.username() , userLogin.password());
+        Authentication auth = this.authenticationManager.authenticate(login);
+        String token = tokenService.generateToken((User) auth.getPrincipal());
+        return ResponseEntity.status(200).body(token);
+    }
+}

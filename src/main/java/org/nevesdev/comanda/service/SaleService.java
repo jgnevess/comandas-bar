@@ -1,6 +1,6 @@
 package org.nevesdev.comanda.service;
 
-import org.nevesdev.comanda.dto.SalePreview;
+import org.nevesdev.comanda.dto.sale.SalePreview;
 import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.Status;
 import org.nevesdev.comanda.model.sale.Sale;
@@ -14,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

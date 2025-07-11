@@ -1,4 +1,4 @@
-package org.nevesdev.comanda.dto;
+package org.nevesdev.comanda.dto.sale;
 
 import lombok.Data;
 import org.nevesdev.comanda.model.order.order.PaymentType;
