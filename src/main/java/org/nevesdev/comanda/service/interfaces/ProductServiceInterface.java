@@ -15,4 +15,6 @@ public interface ProductServiceInterface {
     ProductCreated fastActiveProduct(Long id);
     ProductCreated addProduct(Long id, Integer quantity);
     ProductCreated removeProduct(Long id, Integer quantity);
+    Page<ProductCreated> getAllActive(int page);
+    Page<ProductCreated> getAllInactive(int page);
 }

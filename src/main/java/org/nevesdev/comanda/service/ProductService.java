@@ -97,6 +97,24 @@ public class ProductService implements ProductServiceInterface {
         return new ProductCreated(product, storage.getQuantity());
     }
 
+    @Override
+    public Page<ProductCreated> getAllActive(int page) {
+        Page<ProductCreated> createdPage = getAllProducts(page);
+        return createdPage.map(productCreated -> {
+            if(productCreated.getIsActive()) return productCreated;
+            return null;
+        });
+    }
+
+    @Override
+    public Page<ProductCreated> getAllInactive(int page) {
+        Page<ProductCreated> createdPage = getAllProducts(page);
+        return createdPage.map(productCreated -> {
+            if(!productCreated.getIsActive()) return productCreated;
+            return null;
+        });
+    }
+
 
     //endregion
 

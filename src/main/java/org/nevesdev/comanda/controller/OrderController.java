@@ -1,5 +1,6 @@
 package org.nevesdev.comanda.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.nevesdev.comanda.dto.error.ErrorInfo;
 import org.nevesdev.comanda.dto.order.OrderCreate;
 import org.nevesdev.comanda.model.order.order.PaymentType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "api/order")
+@SecurityRequirement(name = "bearer-key")
 public class OrderController {
 
     @Autowired

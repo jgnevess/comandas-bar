@@ -1,5 +1,6 @@
 package org.nevesdev.comanda.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.nevesdev.comanda.dto.sale.SalePreview;
 import org.nevesdev.comanda.dto.error.ErrorInfo;
 import org.nevesdev.comanda.service.interfaces.SaleServiceInterface;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("api/sale")
+@SecurityRequirement(name = "bearer-key")
 public class SaleController {
 
     @Autowired

@@ -1,4 +1,4 @@
-package org.nevesdev.comanda.config;
+package org.nevesdev.comanda.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +42,15 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "api/auth/register").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "api/auth/valid").permitAll()
+                                .requestMatchers(HttpMethod.POST, "api/product").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "api/product/update/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "api/product/remove/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "api/product/fast-active/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "api/product/add/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "api/product").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "api/product/inactive").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/sale").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/sale/{id}").hasRole("ADMIN")
                                 .anyRequest().authenticated()).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 

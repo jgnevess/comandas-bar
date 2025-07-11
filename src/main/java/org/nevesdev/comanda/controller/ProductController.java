@@ -1,5 +1,6 @@
 package org.nevesdev.comanda.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "api/product")
+@SecurityRequirement(name = "bearer-key")
 public class ProductController {
 
     @Autowired
@@ -67,5 +69,29 @@ public class ProductController {
                             "Erro ao atualizar"));
         }
         return ResponseEntity.status(200).body(response);
+    }
+
+    @PatchMapping("fast-active/{id}")
+    public ResponseEntity<?> fastActiveProductById(@PathVariable Long id) {
+        var response = productServiceInterface.fastActiveProduct(id);
+        if(response == null) {
+            return ResponseEntity
+                    .status(404)
+                    .body(new ErrorInfo(404,
+                            "Erro ao atualizar produto",
+                            "Erro ao atualizar"));
+        }
+        return ResponseEntity.status(200).body(response);
+    }
+
+
+    @GetMapping("active")
+    public ResponseEntity<?> getAllActiveProducts(@RequestParam int page) {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllActive(page));
+    }
+
+    @GetMapping("inactive")
+    public ResponseEntity<?> getAllInactiveProducts(@RequestParam int page) {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllInactive(page));
     }
 }

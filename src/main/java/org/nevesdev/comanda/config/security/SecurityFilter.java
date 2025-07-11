@@ -1,4 +1,4 @@
-package org.nevesdev.comanda.config;
+package org.nevesdev.comanda.config.security;
 
 
 import jakarta.servlet.FilterChain;

@@ -1,5 +1,6 @@
 package org.nevesdev.comanda.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
@@ -37,6 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("register")
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegister userRegister) {
         return ResponseEntity.status(201).body(authService.createUser(userRegister));
     }
