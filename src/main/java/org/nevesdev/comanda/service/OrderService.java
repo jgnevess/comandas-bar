@@ -1,7 +1,8 @@
 package org.nevesdev.comanda.service;
 
 import org.nevesdev.comanda.dto.order.OrderCreate;
-import org.nevesdev.comanda.dto.order.OrderList;
+import org.nevesdev.comanda.dto.order.OrderPreview;
+import org.nevesdev.comanda.exceptions.OrderException;
 import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.PaymentType;
 import org.nevesdev.comanda.model.order.order.Status;
@@ -9,14 +10,9 @@ import org.nevesdev.comanda.model.order.orderItem.OrderItem;
 import org.nevesdev.comanda.model.product.Product;
 import org.nevesdev.comanda.model.sale.Sale;
 import org.nevesdev.comanda.repository.OrderRepository;
-import org.nevesdev.comanda.repository.SaleRepository;
 import org.nevesdev.comanda.service.interfaces.OrderServiceInterface;
-import org.nevesdev.comanda.service.interfaces.SaleServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,39 +29,37 @@ public class OrderService implements OrderServiceInterface {
 
     @Override
     public Order createOrder(OrderCreate orderCreate) {
+        if(orderCreate.getClientName().isBlank()) throw new OrderException(
+                "The client name cannot is empty", 500);
         Order order = new Order(orderCreate);
         order = orderRepository.save(order);
         return order;
     }
 
     @Override
-    public Page<OrderList> getAllOpenOrders(int page) {
-        Page<Order> orders = this.getAllOrders(page);
-        return orders.map(order -> {
-            if(!order.getStatus().equals(Status.OPEN)) {
-                return null;
-            }
-            order.setTotalPriceOrder();
-            return new OrderList(order);
-        });
+    public Page<OrderPreview> getAllOpenOrders(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+        Page<Order> o = orderRepository.findByStatus(Status.OPEN, pageable);
+        List<OrderPreview> orderPreview = o.stream().map(OrderPreview::new).toList();
+        return new PageImpl<>(
+                orderPreview, pageable, o.getTotalElements()
+        );
     }
 
     @Override
-    public Page<OrderList> getAllClosedOrders(int page) {
-        Page<Order> orders = this.getAllOrders(page);
-        return orders.map(order -> {
-            if(!order.getStatus().equals(Status.CLOSED)) {
-                return null;
-            }
-            order.setTotalPriceOrder();
-            return new OrderList(order);
-        });
+    public Page<OrderPreview> getAllClosedOrders(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+        Page<Order> o = orderRepository.findByStatus(Status.CLOSED, pageable);
+        List<OrderPreview> orderPreview = o.stream().map(OrderPreview::new).toList();
+        return new PageImpl<>(
+                orderPreview, pageable, o.getTotalElements()
+        );
     }
 
     @Override
     public Order getOrderById(Long id) {
         Order order = this.orderRepository.findById(id).orElse(null);
-        if(order == null) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
         order.setTotalPriceOrder();
         return order;
     }
@@ -74,7 +68,7 @@ public class OrderService implements OrderServiceInterface {
     public Order addOrderItem(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem(product);
         orderItem.setQuantity(1);
@@ -87,7 +81,7 @@ public class OrderService implements OrderServiceInterface {
     public Order removeOrderItem(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         orderItems.remove(new OrderItem(product));
         order.setItems(orderItems);
@@ -98,7 +92,7 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public OrderItem addQuantityOrderItem(Long id, Long productId) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
@@ -116,7 +110,7 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public OrderItem removeQuantityOrderItem(Long id, Long productId) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
@@ -134,7 +128,8 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public Sale closeOrder(Long id, PaymentType paymentType) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null || order.getStatus().equals(Status.CLOSED)) return null;
+        if(order == null) throw new OrderException("Order not found", 404);
+        if(order.getStatus().equals(Status.CLOSED)) throw new OrderException("Order is closed", 406);
         order.setPaymentType(paymentType);
         order.setStatus(Status.CLOSED);
         order.setTotalPriceOrder();
@@ -145,13 +140,9 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public Boolean deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElse(null);
-        if (order == null || order.getStatus().equals(Status.CLOSED)) return false;
+        if(order == null) throw new OrderException("Order not found", 404);
+        if(order.getStatus().equals(Status.CLOSED)) throw new OrderException("Order is closed", 406);
         orderRepository.delete(order);
         return true;
-    }
-
-    private Page<Order> getAllOrders(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
-        return orderRepository.findAll(pageable);
     }
 }

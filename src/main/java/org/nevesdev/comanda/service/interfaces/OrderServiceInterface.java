@@ -1,7 +1,7 @@
 package org.nevesdev.comanda.service.interfaces;
 
 import org.nevesdev.comanda.dto.order.OrderCreate;
-import org.nevesdev.comanda.dto.order.OrderList;
+import org.nevesdev.comanda.dto.order.OrderPreview;
 import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.PaymentType;
 import org.nevesdev.comanda.model.order.orderItem.OrderItem;
@@ -12,8 +12,8 @@ public interface OrderServiceInterface {
 
     Order createOrder(OrderCreate orderCreate);
 
-    Page<OrderList> getAllOpenOrders(int page);
-    Page<OrderList> getAllClosedOrders(int page);
+    Page<OrderPreview> getAllOpenOrders(int page);
+    Page<OrderPreview> getAllClosedOrders(int page);
     Order getOrderById(Long id);
 
     Order addOrderItem(Long id, Long productId);

@@ -1,6 +1,7 @@
 package org.nevesdev.comanda.service;
 
 import org.nevesdev.comanda.dto.sale.SalePreview;
+import org.nevesdev.comanda.exceptions.SaleException;
 import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.Status;
 import org.nevesdev.comanda.model.sale.Sale;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.security.sasl.SaslException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class SaleService implements SaleServiceInterface {
 
     protected Sale saveSale(Order order) {
         Sale sale = new Sale(order);
-        if(order.getStatus().equals(Status.OPEN)) return null;
+        if(order.getStatus().equals(Status.OPEN)) throw new SaleException("Order is open", 412);
         return saleRepository.save(sale);
     }
 
@@ -43,6 +45,8 @@ public class SaleService implements SaleServiceInterface {
 
     @Override
     public Sale getSaleById(Long id) {
-        return saleRepository.findById(id).orElse(null);
+        Sale sale = saleRepository.findById(id).orElse(null);
+        if(sale == null) throw new SaleException("Sale is not found", 404);
+        return sale;
     }
 }

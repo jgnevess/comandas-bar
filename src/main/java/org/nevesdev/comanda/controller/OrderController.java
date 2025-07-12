@@ -1,11 +1,15 @@
 package org.nevesdev.comanda.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.nevesdev.comanda.dto.error.ErrorInfo;
 import org.nevesdev.comanda.dto.order.OrderCreate;
+import org.nevesdev.comanda.dto.order.OrderPreview;
+import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.PaymentType;
+import org.nevesdev.comanda.model.order.orderItem.OrderItem;
+import org.nevesdev.comanda.model.sale.Sale;
 import org.nevesdev.comanda.service.interfaces.OrderServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,79 +22,53 @@ public class OrderController {
     private OrderServiceInterface orderServiceInterface;
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody OrderCreate orderCreate) {
-        var response = orderServiceInterface.createOrder(orderCreate);
-        if(response == null) return ResponseEntity.status(404).body(
-                new ErrorInfo(404, "Verifique se a comanda está com os dados completos", "Erro ao criar comanda")
-        );
-        return ResponseEntity.status(201).body(response);
+    public ResponseEntity<Order> createOrder(@RequestBody OrderCreate orderCreate) {
+        return ResponseEntity.status(201).body(orderServiceInterface.createOrder(orderCreate));
     }
 
     @GetMapping(value = "open")
-    public ResponseEntity<?> getAllOpenOrders(@RequestParam int page) {
+    public ResponseEntity<Page<OrderPreview>> getAllOpenOrders(@RequestParam int page) {
         return ResponseEntity.ok(orderServiceInterface.getAllOpenOrders(page));
     }
 
     @GetMapping(value = "closed")
-    public ResponseEntity<?> getAllClosedOrders(@RequestParam int page) {
+    public ResponseEntity<Page<OrderPreview>> getAllClosedOrders(@RequestParam int page) {
         return ResponseEntity.ok(orderServiceInterface.getAllClosedOrders(page));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderById(Long id) {
-        var response = orderServiceInterface.getOrderById(id);
-        if(response == null) return ResponseEntity.status(404).body(new ErrorInfo(
-                404, "Verifique se o id está correto", "Erro ao buscar comanda"
-        ));
-        return ResponseEntity.status(200).body(response);
+    public ResponseEntity<Order> getOrderById(Long id) {
+        return ResponseEntity.status(200).body(orderServiceInterface.getOrderById(id));
     }
 
 
     @PatchMapping("/insert-item")
-    public ResponseEntity<?> insertItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        var response = orderServiceInterface.addOrderItem(orderId, productId);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao inserir item na comanda", "Verificar o id do produto e comanda")) :
-                ResponseEntity.status(200).body(response);
+    public ResponseEntity<Order> insertItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.addOrderItem(orderId, productId));
     }
 
     @PatchMapping("/delete-item")
-    public ResponseEntity<?> deleteItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        var response = orderServiceInterface.removeOrderItem(orderId, productId);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao remover item na comanda", "Verificar o id do produto e comanda")) :
-                ResponseEntity.status(200).body(response);
+    public ResponseEntity<Order> deleteItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.removeOrderItem(orderId, productId));
     }
 
     @PatchMapping("/add-item")
-    public ResponseEntity<?> addQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        var response = orderServiceInterface.addQuantityOrderItem(orderId, productId);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao adicionar a quantidade no item da comanda", "Verificar o id do produto e comanda")) :
-                ResponseEntity.status(200).body(response);
+    public ResponseEntity<OrderItem> addQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.addQuantityOrderItem(orderId, productId));
     }
 
     @PatchMapping("/remove-item")
-    public ResponseEntity<?> removeQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        var response = orderServiceInterface.removeQuantityOrderItem(orderId, productId);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao diminuir a quantidade do item na comanda", "Verificar o id do produto e comanda")) :
-                ResponseEntity.status(200).body(response);
+    public ResponseEntity<OrderItem> removeQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.removeQuantityOrderItem(orderId, productId));
     }
 
     @PatchMapping("/close")
-    public ResponseEntity<?> closeOrder(@RequestParam Long orderId, @RequestParam PaymentType paymentType) {
-        var response = orderServiceInterface.closeOrder(orderId, paymentType);
-        return response == null ?
-                ResponseEntity.status(404).body(new ErrorInfo(404,"Erro ao fechar a comanda", "Verificar o id da comanda")) :
-                ResponseEntity.status(200).body(response);
+    public ResponseEntity<Sale> closeOrder(@RequestParam Long orderId, @RequestParam PaymentType paymentType) {
+        return ResponseEntity.status(200).body(orderServiceInterface.closeOrder(orderId, paymentType));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
-        var response = orderServiceInterface.deleteOrder(id);
-        return !response ?
-                ResponseEntity.status(400).body(new ErrorInfo(404,"Erro ao excluir a comanda", "Verificar o id da comanda")) :
-                ResponseEntity.status(404).build();
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        return ResponseEntity.status(404).build();
     }
 }

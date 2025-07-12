@@ -1,15 +1,20 @@
 package org.nevesdev.comanda.service.security;
 
+import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
+import org.nevesdev.comanda.exceptions.UsernameException;
 import org.nevesdev.comanda.model.user.User;
 import org.nevesdev.comanda.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.sql.SQLException;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -23,8 +28,20 @@ public class AuthService implements UserDetailsService {
     }
 
     public User createUser(UserRegister userRegister) {
-        userRegister.setPasswd(new BCryptPasswordEncoder().encode(userRegister.getPasswd()));
+        if(userRegister.getPasswd().isBlank() || userRegister.getUsername().isBlank()) {
+            throw new UsernameException("Username cannot be empty", 409);
+        }
+        if(userRepository.existsByUsername(userRegister.getUsername())) {
+            throw new UsernameException("Username already exists", 409);
+        }
+        userRegister.setPasswd(encryptPassword(userRegister.getPasswd()));
         User user = new User(userRegister);
         return userRepository.save(user);
     }
+
+    private String encryptPassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
+    }
+
 }

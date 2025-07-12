@@ -9,4 +9,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Override
     Page<Product> findAll(Pageable pageable);
+    Page<Product> findByIsActiveTrue(Pageable pageable);
+    Page<Product> findByIsActiveFalse(Pageable pageable);
 }

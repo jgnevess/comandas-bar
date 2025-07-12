@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "api/auth/valid").permitAll()
                                 .requestMatchers(HttpMethod.POST, "api/product").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "api/product/update/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PATCH, "api/product/remove/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "api/product/remove/**").authenticated()
                                 .requestMatchers(HttpMethod.PATCH, "api/product/fast-active/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.PATCH, "api/product/add/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "api/product").hasRole("ADMIN")
