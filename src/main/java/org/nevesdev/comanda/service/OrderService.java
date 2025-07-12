@@ -3,13 +3,16 @@ package org.nevesdev.comanda.service;
 import org.nevesdev.comanda.dto.order.OrderCreate;
 import org.nevesdev.comanda.dto.order.OrderPreview;
 import org.nevesdev.comanda.exceptions.OrderException;
+import org.nevesdev.comanda.exceptions.ProductNotFoundException;
 import org.nevesdev.comanda.model.order.order.Order;
 import org.nevesdev.comanda.model.order.order.PaymentType;
 import org.nevesdev.comanda.model.order.order.Status;
 import org.nevesdev.comanda.model.order.orderItem.OrderItem;
 import org.nevesdev.comanda.model.product.Product;
 import org.nevesdev.comanda.model.sale.Sale;
+import org.nevesdev.comanda.model.storage.Storage;
 import org.nevesdev.comanda.repository.OrderRepository;
+import org.nevesdev.comanda.repository.StorageRepository;
 import org.nevesdev.comanda.service.interfaces.OrderServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -26,6 +29,8 @@ public class OrderService implements OrderServiceInterface {
     private SaleService saleService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private StorageRepository storageRepository;
 
     @Override
     public Order createOrder(OrderCreate orderCreate) {
@@ -65,38 +70,59 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
-    public Order addOrderItem(Long id, Long productId) {
+    public Order addItemOnOrder(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem(product);
+        for (OrderItem orderItem1 : orderItems) {
+            if(orderItem1.getProductId().equals(product.getId())) {
+                addQuantityOnOrderItem(id, productId);
+                return order;
+            }
+        }
         orderItem.setQuantity(1);
         orderItems.add(orderItem);
         order.setItems(orderItems);
+        Storage storage = storageRepository.findByProduct(product).orElse(null);
+        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+        storage.setQuantity(storage.getQuantity() - 1);
         return orderRepository.save(order);
     }
 
     @Override
-    public Order removeOrderItem(Long id, Long productId) {
+    public Order removeItemOnOrder(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
-        orderItems.remove(new OrderItem(product));
+        for(OrderItem orderItem1 : orderItems) {
+            if(orderItem1.getProductId().equals(product.getId())) {
+                orderItems.remove(orderItem1);
+                break;
+            }
+        }
         order.setItems(orderItems);
+        Storage storage = storageRepository.findByProduct(product).orElse(null);
+        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+        storage.setQuantity(storage.getQuantity() + 1);
         return orderRepository.save(order);
     }
 
 
     @Override
-    public OrderItem addQuantityOrderItem(Long id, Long productId) {
+    public OrderItem addQuantityOnOrderItem(Long id, Long productId) {
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
             if(o.getProductId().equals(productId)) {
+                Product product = productService.getProductById(id).getProduct();
+                Storage storage = storageRepository.findByProduct(product).orElse(null);
+                if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+                storage.setQuantity(storage.getQuantity() - 1);
                 o.setQuantity(o.getQuantity() + 1);
                 orderItem = o;
                 break;
@@ -108,13 +134,17 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
-    public OrderItem removeQuantityOrderItem(Long id, Long productId) {
+    public OrderItem removeQuantityOnOrderItem(Long id, Long productId) {
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
             if(o.getProductId().equals(productId)) {
+                Product product = productService.getProductById(id).getProduct();
+                Storage storage = storageRepository.findByProduct(product).orElse(null);
+                if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+                storage.setQuantity(storage.getQuantity() + 1);
                 o.setQuantity(o.getQuantity() - 1);
                 orderItem = o;
                 break;

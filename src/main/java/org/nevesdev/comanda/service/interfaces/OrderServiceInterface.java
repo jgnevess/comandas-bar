@@ -16,10 +16,10 @@ public interface OrderServiceInterface {
     Page<OrderPreview> getAllClosedOrders(int page);
     Order getOrderById(Long id);
 
-    Order addOrderItem(Long id, Long productId);
-    Order removeOrderItem(Long id, Long productId);
-    OrderItem addQuantityOrderItem(Long id, Long productId);
-    OrderItem removeQuantityOrderItem(Long id, Long productId);
+    Order addItemOnOrder(Long id, Long productId);
+    Order removeItemOnOrder(Long id, Long productId);
+    OrderItem addQuantityOnOrderItem(Long id, Long productId);
+    OrderItem removeQuantityOnOrderItem(Long id, Long productId);
 
     Sale closeOrder(Long id, PaymentType paymentType);
     Boolean deleteOrder(Long id);

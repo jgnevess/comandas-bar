@@ -43,23 +43,23 @@ public class OrderController {
 
 
     @PatchMapping("/insert-item")
-    public ResponseEntity<Order> insertItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        return ResponseEntity.status(200).body(orderServiceInterface.addOrderItem(orderId, productId));
+    public ResponseEntity<Order> insertItemOnOrder(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.addItemOnOrder(orderId, productId));
     }
 
     @PatchMapping("/delete-item")
-    public ResponseEntity<Order> deleteItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        return ResponseEntity.status(200).body(orderServiceInterface.removeOrderItem(orderId, productId));
+    public ResponseEntity<Order> deleteItemOnOrder(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.removeItemOnOrder(orderId, productId));
     }
 
-    @PatchMapping("/add-item")
-    public ResponseEntity<OrderItem> addQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        return ResponseEntity.status(200).body(orderServiceInterface.addQuantityOrderItem(orderId, productId));
+    @PatchMapping("/add-item-quantity")
+    public ResponseEntity<OrderItem> addQuantityOnItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.addQuantityOnOrderItem(orderId, productId));
     }
 
-    @PatchMapping("/remove-item")
-    public ResponseEntity<OrderItem> removeQuantityItem(@RequestParam Long orderId, @RequestParam Long productId) {
-        return ResponseEntity.status(200).body(orderServiceInterface.removeQuantityOrderItem(orderId, productId));
+    @PatchMapping("/remove-item-quantity")
+    public ResponseEntity<OrderItem> removeQuantityOnItem(@RequestParam Long orderId, @RequestParam Long productId) {
+        return ResponseEntity.status(200).body(orderServiceInterface.removeQuantityOnOrderItem(orderId, productId));
     }
 
     @PatchMapping("/close")
