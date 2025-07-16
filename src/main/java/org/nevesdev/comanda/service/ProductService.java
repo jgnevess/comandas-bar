@@ -40,8 +40,8 @@ public class ProductService implements ProductServiceInterface {
     }
 
     @Override
-    public Page<ProductCreated> getAllProducts(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+    public Page<ProductCreated> getAllProducts(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Product> products = productRepository.findAll(pageable);
         return products.map(product -> {
             return new ProductCreated(product, this.getStorageQuantity(product));
@@ -100,8 +100,8 @@ public class ProductService implements ProductServiceInterface {
     }
 
     @Override
-    public Page<ProductCreated> getAllActive(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+    public Page<ProductCreated> getAllActive(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Product> products = productRepository.findByIsActiveTrue(pageable);
         return products.map(product -> {
             return new ProductCreated(product, this.getStorageQuantity(product));
@@ -109,8 +109,8 @@ public class ProductService implements ProductServiceInterface {
     }
 
     @Override
-    public Page<ProductCreated> getAllInactive(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+    public Page<ProductCreated> getAllInactive(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Product> products = productRepository.findByIsActiveFalse(pageable);
         return products.map(product -> {
             return new ProductCreated(product, this.getStorageQuantity(product));

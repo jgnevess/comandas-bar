@@ -20,8 +20,13 @@ public class SaleController {
     private SaleServiceInterface saleServiceInterface;
 
     @GetMapping
-    public ResponseEntity<Page<SalePreview>> getAllByOrderPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate, int page) {
-        return ResponseEntity.ok(saleServiceInterface.findAllSalesByOrderDateTimeBetween(startDate, endDate, page));
+    public ResponseEntity<Page<SalePreview>> getAllByOrderPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate,@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.ok(saleServiceInterface.findAllSalesByOrderDateTimeBetween(startDate, endDate, page, pageSize));
+    }
+
+    @GetMapping("totalBetween")
+    public ResponseEntity<Double> getAllByOrderPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+        return ResponseEntity.ok(saleServiceInterface.findAllSalesByOrderDateTimeBetween(startDate, endDate));
     }
 
     @GetMapping("/{id}")

@@ -50,6 +50,7 @@ public class AuthController {
         String token = tokenService.generateToken((User) auth.getPrincipal());
         Map<String, String> response = new HashMap<>();
         response.put("Token", token);
+        response.put("userRole", ((User) auth.getPrincipal()).getRole().toString());
         return ResponseEntity.status(200).body(response);
     }
 }

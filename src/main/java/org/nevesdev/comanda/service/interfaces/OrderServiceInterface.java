@@ -12,8 +12,8 @@ public interface OrderServiceInterface {
 
     Order createOrder(OrderCreate orderCreate);
 
-    Page<OrderPreview> getAllOpenOrders(int page);
-    Page<OrderPreview> getAllClosedOrders(int page);
+    Page<OrderPreview> getAllOpenOrders(int page, int pageSize);
+    Page<OrderPreview> getAllClosedOrders(int page, int pageSize);
     Order getOrderById(Long id);
 
     Order addItemOnOrder(Long id, Long productId);

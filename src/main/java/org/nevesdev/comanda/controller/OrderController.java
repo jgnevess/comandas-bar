@@ -27,13 +27,13 @@ public class OrderController {
     }
 
     @GetMapping(value = "open")
-    public ResponseEntity<Page<OrderPreview>> getAllOpenOrders(@RequestParam int page) {
-        return ResponseEntity.ok(orderServiceInterface.getAllOpenOrders(page));
+    public ResponseEntity<Page<OrderPreview>> getAllOpenOrders(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.ok(orderServiceInterface.getAllOpenOrders(page, pageSize));
     }
 
     @GetMapping(value = "closed")
-    public ResponseEntity<Page<OrderPreview>> getAllClosedOrders(@RequestParam int page) {
-        return ResponseEntity.ok(orderServiceInterface.getAllClosedOrders(page));
+    public ResponseEntity<Page<OrderPreview>> getAllClosedOrders(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.ok(orderServiceInterface.getAllClosedOrders(page, pageSize));
     }
 
     @GetMapping("/{id}")

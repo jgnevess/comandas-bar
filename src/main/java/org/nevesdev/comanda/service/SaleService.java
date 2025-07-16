@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.security.sasl.SaslException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,16 +32,27 @@ public class SaleService implements SaleServiceInterface {
     }
 
     @Override
-    public Page<SalePreview> findAllSalesByOrderDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, int page) {
+    public Page<SalePreview> findAllSalesByOrderDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, int page, int pageSize) {
         List<Sale> sales = saleRepository.findAllSalesByOrderOrderDateTimeBetween(startDate, endDate);
+        sales.sort(Comparator.comparing((Sale s) -> s.getOrder().getOrderDateTime()));
         List<SalePreview> previews = sales.stream().map(SalePreview::new).toList();
-        int start = page * 10;
-        int end = Math.min(start + 10, sales.size());
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, sales.size());
         return new PageImpl<>(
                 previews.subList(start, end),
-                PageRequest.of(page, 10, Sort.by("id")),
+                PageRequest.of(page, pageSize),
                 previews.size()
         );
+    }
+
+    @Override
+    public Double findAllSalesByOrderDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Sale> sales = saleRepository.findAllSalesByOrderOrderDateTimeBetween(startDate, endDate);
+        double response = 0.0;
+        for(Sale sale : sales) {
+            response += sale.getOrder().getTotalPriceOrder();
+        }
+        return response;
     }
 
     @Override

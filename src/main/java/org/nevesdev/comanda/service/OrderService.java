@@ -37,13 +37,14 @@ public class OrderService implements OrderServiceInterface {
         if(orderCreate.getClientName().isBlank()) throw new OrderException(
                 "The client name cannot is empty", 500);
         Order order = new Order(orderCreate);
+        order.setTotalPrice(order.getTotalPriceOrder());
         order = orderRepository.save(order);
         return order;
     }
 
     @Override
-    public Page<OrderPreview> getAllOpenOrders(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+    public Page<OrderPreview> getAllOpenOrders(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Order> o = orderRepository.findByStatus(Status.OPEN, pageable);
         List<OrderPreview> orderPreview = o.stream().map(OrderPreview::new).toList();
         return new PageImpl<>(
@@ -52,8 +53,8 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
-    public Page<OrderPreview> getAllClosedOrders(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+    public Page<OrderPreview> getAllClosedOrders(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Order> o = orderRepository.findByStatus(Status.CLOSED, pageable);
         List<OrderPreview> orderPreview = o.stream().map(OrderPreview::new).toList();
         return new PageImpl<>(
@@ -88,6 +89,7 @@ public class OrderService implements OrderServiceInterface {
         Storage storage = storageRepository.findByProduct(product).orElse(null);
         if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() - 1);
+        order.setTotalPrice(order.getTotalPriceOrder());
         return orderRepository.save(order);
     }
 
@@ -107,6 +109,7 @@ public class OrderService implements OrderServiceInterface {
         Storage storage = storageRepository.findByProduct(product).orElse(null);
         if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() + 1);
+        order.setTotalPrice(order.getTotalPriceOrder());
         return orderRepository.save(order);
     }
 
@@ -129,6 +132,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         order.setItems(orderItems);
+        order.setTotalPrice(order.getTotalPriceOrder());
         orderRepository.save(order);
         return orderItem;
     }
@@ -151,6 +155,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         order.setItems(orderItems);
+        order.setTotalPrice(order.getTotalPriceOrder());
         orderRepository.save(order);
         return orderItem;
     }
@@ -163,6 +168,7 @@ public class OrderService implements OrderServiceInterface {
         order.setPaymentType(paymentType);
         order.setStatus(Status.CLOSED);
         order.setTotalPriceOrder();
+        order.setTotalPrice(order.getTotalPriceOrder());
         order = orderRepository.save(order);
         return saleService.saveSale(order);
     }

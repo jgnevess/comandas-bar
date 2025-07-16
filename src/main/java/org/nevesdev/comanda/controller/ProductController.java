@@ -20,13 +20,13 @@ public class ProductController {
     private ProductServiceInterface productServiceInterface;
 
     @PostMapping
-    public ResponseEntity<ProductCreated> createProduct(ProductCreate productCreate) {
+    public ResponseEntity<ProductCreated> createProduct(@RequestBody ProductCreate productCreate) {
         return ResponseEntity.status(201).body(productServiceInterface.createProduct(productCreate));
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductCreated>> getAllProducts(@RequestParam int page) {
-        return ResponseEntity.ok().body(productServiceInterface.getAllProducts(page));
+    public ResponseEntity<Page<ProductCreated>> getAllProducts(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.ok().body(productServiceInterface.getAllProducts(page, pageSize));
     }
 
     @GetMapping("/{id}")
@@ -55,12 +55,12 @@ public class ProductController {
 
 
     @GetMapping("active")
-    public ResponseEntity<Page<ProductCreated>> getAllActiveProducts(@RequestParam int page) {
-        return ResponseEntity.status(200).body(productServiceInterface.getAllActive(page));
+    public ResponseEntity<Page<ProductCreated>> getAllActiveProducts(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllActive(page, pageSize));
     }
 
     @GetMapping("inactive")
-    public ResponseEntity<Page<ProductCreated>> getAllInactiveProducts(@RequestParam int page) {
-        return ResponseEntity.status(200).body(productServiceInterface.getAllInactive(page));
+    public ResponseEntity<Page<ProductCreated>> getAllInactiveProducts(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllInactive(page, pageSize));
     }
 }
