@@ -1,6 +1,7 @@
 package org.nevesdev.comanda.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.order.OrderCreate;
 import org.nevesdev.comanda.dto.order.OrderPreview;
 import org.nevesdev.comanda.model.order.order.Order;
@@ -22,7 +23,7 @@ public class OrderController {
     private OrderServiceInterface orderServiceInterface;
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderCreate orderCreate) {
+    public ResponseEntity<Order> createOrder(@RequestBody @Valid OrderCreate orderCreate) {
         return ResponseEntity.status(201).body(orderServiceInterface.createOrder(orderCreate));
     }
 
@@ -36,8 +37,13 @@ public class OrderController {
         return ResponseEntity.ok(orderServiceInterface.getAllClosedOrders(page, pageSize));
     }
 
+    @GetMapping(value = "closed-today")
+    public ResponseEntity<Page<OrderPreview>> getAllOrdersCloseBetweenDate(@RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.status(200).body(orderServiceInterface.getAllOrdersCloseBetweenDate(page, pageSize));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(Long id) {
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return ResponseEntity.status(200).body(orderServiceInterface.getOrderById(id));
     }
 
@@ -69,6 +75,7 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        return ResponseEntity.status(404).build();
+        orderServiceInterface.deleteOrder(id);
+        return ResponseEntity.status(204).build();
     }
 }

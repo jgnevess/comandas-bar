@@ -2,9 +2,12 @@ package org.nevesdev.comanda.service.interfaces;
 
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
+import org.nevesdev.comanda.dto.product.ProductSelect;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 
 public interface ProductServiceInterface {
@@ -18,4 +21,5 @@ public interface ProductServiceInterface {
     ProductCreated removeProduct(Long id, Integer quantity);
     Page<ProductCreated> getAllActive(int page, int pageSize);
     Page<ProductCreated> getAllInactive(int page, int pageSize);
+    List<ProductSelect> getAllActive();
 }

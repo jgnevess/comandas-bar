@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,7 +39,7 @@ public class OrderService implements OrderServiceInterface {
         if(orderCreate.getClientName().isBlank()) throw new OrderException(
                 "The client name cannot is empty", 500);
         Order order = new Order(orderCreate);
-        order.setTotalPrice(order.getTotalPriceOrder());
+        order.setTotalPriceOrder();
         order = orderRepository.save(order);
         return order;
     }
@@ -62,12 +64,29 @@ public class OrderService implements OrderServiceInterface {
         );
     }
 
+
+
     @Override
     public Order getOrderById(Long id) {
         Order order = this.orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
         order.setTotalPriceOrder();
         return order;
+    }
+
+    @Override
+    public Page<OrderPreview> getAllOrdersCloseBetweenDate(int page, int pageSize) {
+        LocalDate startDate = LocalDate.now();
+        LocalDateTime endDate = LocalDateTime.now();
+        List<Order> orders = orderRepository.findAllOrdersByOrderDateTimeBetweenAndStatus(startDate.atStartOfDay(), endDate, Status.CLOSED);
+        List<OrderPreview> previews = orders.stream().map(OrderPreview::new).toList();
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, orders.size());
+        return new PageImpl<>(
+                    previews.subList(start, end),
+                    PageRequest.of(page, pageSize),
+                    previews.size()
+                );
     }
 
     @Override
@@ -89,7 +108,7 @@ public class OrderService implements OrderServiceInterface {
         Storage storage = storageRepository.findByProduct(product).orElse(null);
         if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() - 1);
-        order.setTotalPrice(order.getTotalPriceOrder());
+        order.setTotalPriceOrder();
         return orderRepository.save(order);
     }
 
@@ -109,7 +128,7 @@ public class OrderService implements OrderServiceInterface {
         Storage storage = storageRepository.findByProduct(product).orElse(null);
         if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() + 1);
-        order.setTotalPrice(order.getTotalPriceOrder());
+        order.setTotalPriceOrder();
         return orderRepository.save(order);
     }
 
@@ -132,7 +151,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         order.setItems(orderItems);
-        order.setTotalPrice(order.getTotalPriceOrder());
+        order.setTotalPriceOrder();
         orderRepository.save(order);
         return orderItem;
     }
@@ -155,7 +174,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         order.setItems(orderItems);
-        order.setTotalPrice(order.getTotalPriceOrder());
+        order.setTotalPriceOrder();
         orderRepository.save(order);
         return orderItem;
     }
@@ -168,15 +187,13 @@ public class OrderService implements OrderServiceInterface {
         order.setPaymentType(paymentType);
         order.setStatus(Status.CLOSED);
         order.setTotalPriceOrder();
-        order.setTotalPrice(order.getTotalPriceOrder());
         order = orderRepository.save(order);
         return saleService.saveSale(order);
     }
 
     @Override
     public Boolean deleteOrder(Long id) {
-        Order order = orderRepository.findById(id).orElse(null);
-        if(order == null) throw new OrderException("Order not found", 404);
+        Order order = orderRepository.findById(id).orElseThrow(() -> new OrderException("Order not found", 404));
         if(order.getStatus().equals(Status.CLOSED)) throw new OrderException("Order is closed", 406);
         orderRepository.delete(order);
         return true;

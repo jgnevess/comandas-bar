@@ -50,7 +50,7 @@ public class SaleService implements SaleServiceInterface {
         List<Sale> sales = saleRepository.findAllSalesByOrderOrderDateTimeBetween(startDate, endDate);
         double response = 0.0;
         for(Sale sale : sales) {
-            response += sale.getOrder().getTotalPriceOrder();
+            response += sale.getOrder().getTotalPrice();
         }
         return response;
     }

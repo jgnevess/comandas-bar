@@ -38,16 +38,9 @@ public class Order {
     }
 
     public void setTotalPriceOrder() {
+        this.totalPrice = 0.0;
         for(OrderItem item : items) {
             totalPrice += (item.getUnitPrice() * item.getQuantity());
         }
-    }
-
-    public Double getTotalPriceOrder() {
-        double total = 0;
-        for(OrderItem item : items) {
-            total += (item.getUnitPrice() * item.getQuantity());
-        }
-        return total;
     }
 }

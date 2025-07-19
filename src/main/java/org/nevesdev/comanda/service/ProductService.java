@@ -1,10 +1,9 @@
 package org.nevesdev.comanda.service;
 
+import jakarta.validation.UnexpectedTypeException;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.nevesdev.comanda.dto.product.ProductCreate;
-import org.nevesdev.comanda.dto.product.ProductCreated;
-import org.nevesdev.comanda.dto.product.ProductQuantity;
-import org.nevesdev.comanda.dto.product.ProductUpdate;
+import org.nevesdev.comanda.dto.product.*;
+import org.nevesdev.comanda.exceptions.NotValidException;
 import org.nevesdev.comanda.exceptions.ProductNotFoundException;
 import org.nevesdev.comanda.model.product.Product;
 import org.nevesdev.comanda.model.storage.Storage;
@@ -12,10 +11,13 @@ import org.nevesdev.comanda.repository.ProductRepository;
 import org.nevesdev.comanda.repository.StorageRepository;
 import org.nevesdev.comanda.service.interfaces.ProductServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ProductService implements ProductServiceInterface {
@@ -33,10 +35,14 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated createProduct(ProductCreate productCreate) {
-        String code = RandomStringUtils.randomNumeric(4, 6);
-        Product product = new Product(productCreate, code);
-        product = productRepository.save(product);
-        return new ProductCreated(product, this.createStorage(product));
+        try {
+            String code = RandomStringUtils.randomNumeric(4, 6);
+            Product product = new Product(productCreate, code);
+            product = productRepository.save(product);
+            return new ProductCreated(product, this.createStorage(product));
+        } catch (DataIntegrityViolationException e) {
+            throw new NotValidException("Erro ao criar produto", 400);
+        }
     }
 
     @Override
@@ -115,6 +121,12 @@ public class ProductService implements ProductServiceInterface {
         return products.map(product -> {
             return new ProductCreated(product, this.getStorageQuantity(product));
         });
+    }
+
+    @Override
+    public List<ProductSelect> getAllActive() {
+        List<Product> products = productRepository.findAll();
+        return products.stream().filter(Product::getIsActive).map(ProductSelect::new).toList();
     }
 
 

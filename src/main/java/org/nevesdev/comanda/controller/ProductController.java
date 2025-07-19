@@ -1,8 +1,10 @@
 package org.nevesdev.comanda.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.product.ProductCreate;
 import org.nevesdev.comanda.dto.product.ProductCreated;
+import org.nevesdev.comanda.dto.product.ProductSelect;
 import org.nevesdev.comanda.dto.product.ProductUpdate;
 import org.nevesdev.comanda.dto.error.ExceptionInfo;
 import org.nevesdev.comanda.service.interfaces.ProductServiceInterface;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "api/product")
@@ -20,13 +24,18 @@ public class ProductController {
     private ProductServiceInterface productServiceInterface;
 
     @PostMapping
-    public ResponseEntity<ProductCreated> createProduct(@RequestBody ProductCreate productCreate) {
+    public ResponseEntity<ProductCreated> createProduct(@RequestBody @Valid ProductCreate productCreate) {
         return ResponseEntity.status(201).body(productServiceInterface.createProduct(productCreate));
     }
 
     @GetMapping
     public ResponseEntity<Page<ProductCreated>> getAllProducts(@RequestParam int page, @RequestParam int pageSize) {
         return ResponseEntity.ok().body(productServiceInterface.getAllProducts(page, pageSize));
+    }
+
+    @GetMapping("/all-active")
+    public ResponseEntity<List<ProductSelect>> getAllActiveProducts() {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllActive());
     }
 
     @GetMapping("/{id}")
@@ -44,7 +53,7 @@ public class ProductController {
     }
 
     @PutMapping("update/{id}")
-    public ResponseEntity<ProductCreated> updateProduct(@PathVariable Long id, @RequestBody ProductUpdate productUpdate) {
+    public ResponseEntity<ProductCreated> updateProduct(@PathVariable Long id, @RequestBody @Valid ProductUpdate productUpdate) {
         return ResponseEntity.status(200).body(productServiceInterface.updateProduct(id, productUpdate));
     }
 

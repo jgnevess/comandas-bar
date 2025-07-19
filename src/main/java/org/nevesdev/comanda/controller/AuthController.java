@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -32,9 +34,7 @@ public class AuthController {
 
     @GetMapping(value = "valid")
     public ResponseEntity<?> tokenIsValid(@RequestParam String token) {
-        Boolean res = !tokenService.validateToken(token).equals("");
-        if(!res) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(tokenService.validateToken(token));
     }
 
     @PostMapping("register")
@@ -44,13 +44,17 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody UserLogin userLogin) {
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userLogin.username() , userLogin.password());
-        Authentication auth = this.authenticationManager.authenticate(login);
-        String token = tokenService.generateToken((User) auth.getPrincipal());
-        Map<String, String> response = new HashMap<>();
-        response.put("Token", token);
-        response.put("userRole", ((User) auth.getPrincipal()).getRole().toString());
-        return ResponseEntity.status(200).body(response);
+    public ResponseEntity<Map<String, String >> login(@RequestBody UserLogin userLogin) {
+        try {
+            Map<String, String> response = new HashMap<>();
+            UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userLogin.username() , userLogin.password());
+            Authentication auth = this.authenticationManager.authenticate(login);
+            String token = tokenService.generateToken((User) auth.getPrincipal());
+            response.put("token", token);
+            response.put("userRole", ((User) auth.getPrincipal()).getRole().toString());
+            return ResponseEntity.status(200).body(response);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(400).body(Map.of("message", "Usuário ou senha incorretos"));
+        }
     }
 }
