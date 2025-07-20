@@ -17,6 +17,7 @@ public class Product {
     private Long id;
     @Column(unique = true)
     private String code;
+    @Column(nullable = false, unique = true)
     private String description;
     private Double costPrice;
     private Double sellingPrice;

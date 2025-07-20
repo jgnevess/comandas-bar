@@ -49,9 +49,7 @@ public class ProductService implements ProductServiceInterface {
     public Page<ProductCreated> getAllProducts(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
         Page<Product> products = productRepository.findAll(pageable);
-        return products.map(product -> {
-            return new ProductCreated(product, this.getStorageQuantity(product));
-        });
+        return products.map(product -> new ProductCreated(product, this.getStorageQuantity(product)));
     }
 
     @Override
@@ -135,8 +133,7 @@ public class ProductService implements ProductServiceInterface {
     //region Private methods
 
     private Integer getStorageQuantity(Product product) {
-        Storage storage = storageRepository.findByProduct(product).orElse(null);
-        if(storage == null) return -1;
+        Storage storage = storageRepository.findByProductId(product.getId()).orElseThrow(() -> new ProductNotFoundException("Product not found", 500));
         return storage.getQuantity();
     }
 

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -93,7 +94,12 @@ public class OrderService implements OrderServiceInterface {
     public Order addItemOnOrder(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
         Order order = orderRepository.findById(id).orElse(null);
+        Storage storage = storageRepository.findByProduct(product).orElse(null);
+
         if(order == null) throw new OrderException("Order not found", 404);
+        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+        if(storage.getQuantity() <=0) throw new ProductNotFoundException("Error Quantity", 500);
+
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem(product);
         for (OrderItem orderItem1 : orderItems) {
@@ -102,13 +108,13 @@ public class OrderService implements OrderServiceInterface {
                 return order;
             }
         }
+
         orderItem.setQuantity(1);
         orderItems.add(orderItem);
         order.setItems(orderItems);
-        Storage storage = storageRepository.findByProduct(product).orElse(null);
-        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() - 1);
         order.setTotalPriceOrder();
+        storageRepository.save(storage);
         return orderRepository.save(order);
     }
 
@@ -129,6 +135,7 @@ public class OrderService implements OrderServiceInterface {
         if(storage == null) throw new ProductNotFoundException("Storage error", 500);
         storage.setQuantity(storage.getQuantity() + 1);
         order.setTotalPriceOrder();
+        storageRepository.save(storage);
         return orderRepository.save(order);
     }
 
@@ -137,15 +144,17 @@ public class OrderService implements OrderServiceInterface {
     public OrderItem addQuantityOnOrderItem(Long id, Long productId) {
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
+
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
             if(o.getProductId().equals(productId)) {
                 Product product = productService.getProductById(id).getProduct();
-                Storage storage = storageRepository.findByProduct(product).orElse(null);
-                if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+                Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 500));
+                if(storage.getQuantity() <=0) throw new ProductNotFoundException("Error Quantity", 500);
                 storage.setQuantity(storage.getQuantity() - 1);
                 o.setQuantity(o.getQuantity() + 1);
+                storageRepository.save(storage);
                 orderItem = o;
                 break;
             }
@@ -169,6 +178,7 @@ public class OrderService implements OrderServiceInterface {
                 if(storage == null) throw new ProductNotFoundException("Storage error", 500);
                 storage.setQuantity(storage.getQuantity() + 1);
                 o.setQuantity(o.getQuantity() - 1);
+                storageRepository.save(storage);
                 orderItem = o;
                 break;
             }
@@ -195,6 +205,12 @@ public class OrderService implements OrderServiceInterface {
     public Boolean deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new OrderException("Order not found", 404));
         if(order.getStatus().equals(Status.CLOSED)) throw new OrderException("Order is closed", 406);
+        for(var i : order.getItems()) {
+            Product p = productService.getProductById(i.getProductId()).getProduct();
+            Storage s = storageRepository.findByProduct(p).orElseThrow(() -> new ProductNotFoundException("Product not found", 500));
+            s.setQuantity(s.getQuantity() + i.getQuantity());
+            storageRepository.save(s);
+        }
         orderRepository.delete(order);
         return true;
     }
