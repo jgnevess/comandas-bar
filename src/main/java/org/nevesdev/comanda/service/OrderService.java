@@ -93,11 +93,8 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public Order addItemOnOrder(Long id, Long productId) {
         Product product = productService.getProductById(productId).getProduct();
-        Order order = orderRepository.findById(id).orElse(null);
-        Storage storage = storageRepository.findByProduct(product).orElse(null);
-
-        if(order == null) throw new OrderException("Order not found", 404);
-        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+        Order order = orderRepository.findById(id).orElseThrow(() -> new OrderException("Order not found", 404));
+        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 500));
         if(storage.getQuantity() <=0) throw new ProductNotFoundException("Error Quantity", 500);
 
         List<OrderItem> orderItems = order.getItems();
@@ -108,7 +105,6 @@ public class OrderService implements OrderServiceInterface {
                 return order;
             }
         }
-
         orderItem.setQuantity(1);
         orderItems.add(orderItem);
         order.setItems(orderItems);
@@ -142,14 +138,14 @@ public class OrderService implements OrderServiceInterface {
 
     @Override
     public OrderItem addQuantityOnOrderItem(Long id, Long productId) {
+        System.out.println(productId);
         Order order = orderRepository.findById(id).orElse(null);
         if(order == null) throw new OrderException("Order not found", 404);
-
         List<OrderItem> orderItems = order.getItems();
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
             if(o.getProductId().equals(productId)) {
-                Product product = productService.getProductById(id).getProduct();
+                Product product = productService.getProductById(productId).getProduct();
                 Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 500));
                 if(storage.getQuantity() <=0) throw new ProductNotFoundException("Error Quantity", 500);
                 storage.setQuantity(storage.getQuantity() - 1);
@@ -173,7 +169,7 @@ public class OrderService implements OrderServiceInterface {
         OrderItem orderItem = new OrderItem();
         for(OrderItem o: orderItems) {
             if(o.getProductId().equals(productId)) {
-                Product product = productService.getProductById(id).getProduct();
+                Product product = productService.getProductById(productId).getProduct();
                 Storage storage = storageRepository.findByProduct(product).orElse(null);
                 if(storage == null) throw new ProductNotFoundException("Storage error", 500);
                 storage.setQuantity(storage.getQuantity() + 1);

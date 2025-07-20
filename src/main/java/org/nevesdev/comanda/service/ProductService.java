@@ -133,7 +133,7 @@ public class ProductService implements ProductServiceInterface {
     //region Private methods
 
     private Integer getStorageQuantity(Product product) {
-        Storage storage = storageRepository.findByProductId(product.getId()).orElseThrow(() -> new ProductNotFoundException("Product not found", 500));
+        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Sem quantidade", 500));
         return storage.getQuantity();
     }
 
@@ -149,8 +149,8 @@ public class ProductService implements ProductServiceInterface {
     //endregion
 
     protected ProductQuantity getProductById(Long id) {
-        Product p = productRepository.findById(id).orElse(null);
-        if(p == null) throw new ProductNotFoundException("Product not found", 404);
+        System.out.println(id);
+        Product p = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Aqui sera?", 404));
         return new ProductQuantity(p, this.getStorageQuantity(p));
     }
 }
