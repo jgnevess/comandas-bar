@@ -16,6 +16,8 @@ import org.nevesdev.comanda.model.product.Product;
 import org.nevesdev.comanda.model.storage.Storage;
 import org.nevesdev.comanda.repository.ProductRepository;
 import org.nevesdev.comanda.repository.StorageRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -103,13 +105,13 @@ class ProductServiceTest {
 
     @Test
     void createProduct_ThrowNotValidException() {
-        when(productRepository.save(any(Product.class))).thenThrow(new NotValidException("Erro ao criar produto", 400));
+        when(productRepository.save(any(Product.class))).thenThrow(new DataIntegrityViolationException(""));
         assertThrows(NotValidException.class, () -> productService.createProduct(productCreate));
     }
 
     @Test
     void createProduct_ThrowNotValidExceptionCorrectMessageAndStatusCode() {
-        when(productRepository.save(any(Product.class))).thenThrow(new NotValidException("Erro ao criar produto", 400));
+        when(productRepository.save(any(Product.class))).thenThrow(new DataIntegrityViolationException(""));
 
         NotValidException exception = assertThrows(NotValidException.class,
                 () -> productService.createProduct(productCreate));
@@ -117,5 +119,32 @@ class ProductServiceTest {
         assertEquals("Erro ao criar produto", exception.getMessage());
         assertEquals(400, exception.getStatus());
 
+    }
+
+    @Test
+    void getAll_shouldReturnPage() {
+        List<Product> mockProducts = List.of(product);
+        Page<Product> mockProductPage = new PageImpl<>(mockProducts);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+
+        when(productRepository.findAll(pageable)).thenReturn(mockProductPage);
+        when(storageRepository.findByProduct(product)).thenReturn(Optional.of(storage));
+        Page<ProductCreated> result = productService.getAllProducts(0, 10);
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals(new ProductCreated(product, storage.getQuantity()), result.getContent().get(0));
+    }
+
+    @Test
+    void getAll_shouldThrowProductNotFoundExceptionAndCorrectMessage() {
+        List<Product> mockProducts = List.of(product);
+        Page<Product> mockProductPage = new PageImpl<>(mockProducts);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+
+        when(productRepository.findAll(pageable)).thenReturn(mockProductPage);
+
+        ProductNotFoundException ex = assertThrows(ProductNotFoundException.class, () -> productService.getAllProducts(0, 10));
+
+        assertEquals("Sem quantidade", ex.getMessage());
     }
 }

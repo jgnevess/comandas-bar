@@ -54,17 +54,14 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated getById(Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product == null) throw new ProductNotFoundException("Product not found", 404);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
         int quantity = this.getStorageQuantity(product);
-        if(quantity == -1) throw new ProductNotFoundException("Storage error", 500);
         return new ProductCreated(product, quantity);
     }
 
     @Override
     public ProductCreated updateProduct(Long id, ProductUpdate productUpdate) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product == null) throw new ProductNotFoundException("Product not found", 404);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
         product.updateProduct(productUpdate);
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
@@ -72,8 +69,7 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated fastActiveProduct(Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product == null) throw new ProductNotFoundException("Product not found", 404);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
         product.setIsActive(!product.getIsActive());
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
@@ -81,10 +77,8 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated addProduct(Long id, Integer quantity) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product == null) throw new ProductNotFoundException("Product not found", 404);
-        Storage storage = storageRepository.findByProduct(product).orElse(null);
-        if(storage == null) throw new ProductNotFoundException("Storage error", 500);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
+        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 500));
         storage.setQuantity(storage.getQuantity() + quantity);
         storage = storageRepository.save(storage);
         return new ProductCreated(product, storage.getQuantity());
@@ -92,12 +86,10 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated removeProduct(Long id, Integer quantity) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product == null) throw new ProductNotFoundException("Product not found", 404);
-        Storage storage = storageRepository.findByProduct(product).orElse(null);
-        if(storage == null) throw new ProductNotFoundException("Storage error", 404);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
+        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 404));
         int value = storage.getQuantity() - quantity;
-        if(value < 0) throw new ProductNotFoundException("Storage error", 404);
+        if(value < 0) throw new ProductNotFoundException("Sem produto", 404);
         storage.setQuantity(value);
         storage = storageRepository.save(storage);
         return new ProductCreated(product, storage.getQuantity());
@@ -149,7 +141,6 @@ public class ProductService implements ProductServiceInterface {
     //endregion
 
     protected ProductQuantity getProductById(Long id) {
-        System.out.println(id);
         Product p = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Aqui sera?", 404));
         return new ProductQuantity(p, this.getStorageQuantity(p));
     }
