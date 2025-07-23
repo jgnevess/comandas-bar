@@ -27,5 +27,7 @@ public class ProductCreated {
         this.quantity = quantity;
         this.code = product.getCode();
     }
+
+    public ProductCreated(){}
 }
 
