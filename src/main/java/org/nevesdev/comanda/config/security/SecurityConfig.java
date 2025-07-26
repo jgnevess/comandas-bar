@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.HEAD).permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()//hasRole("SUPER")
                                 .requestMatchers(HttpMethod.GET, "/api/auth/valid").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/product").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/api/product/update/**").hasRole("ADMIN")
@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/product/inactive").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/sale").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/sale/totalBetween*").authenticated()
-                                .requestMatchers(HttpMethod.GET, "/api/sale/{id}").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/sale/{id}").authenticated()
                                 .anyRequest().authenticated()).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 

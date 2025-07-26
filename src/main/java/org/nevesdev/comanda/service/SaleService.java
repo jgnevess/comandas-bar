@@ -61,4 +61,11 @@ public class SaleService implements SaleServiceInterface {
         if(sale == null) throw new SaleException("Sale is not found", 404);
         return sale;
     }
+
+    @Override
+    public List<Sale> getAllSalesByOrderDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        return saleRepository
+                .findAllSalesByOrderOrderDateTimeBetween(startDate, endDate)
+                .stream().sorted((s1, s2) -> s1.getOrder().getOrderDateTime().compareTo(s2.getOrder().getOrderDateTime())).toList();
+    }
 }

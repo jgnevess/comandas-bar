@@ -22,4 +22,5 @@ public interface ProductServiceInterface {
     Page<ProductCreated> getAllActive(int page, int pageSize);
     Page<ProductCreated> getAllInactive(int page, int pageSize);
     List<ProductSelect> getAllActive();
+    List<ProductSelect> getAllByDescription(String description);
 }

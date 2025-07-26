@@ -1,6 +1,7 @@
 package org.nevesdev.comanda.model.user;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
@@ -17,12 +18,14 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
     private String username;
+    @Column(nullable = false)
     private String password;
     private Role role;
 
@@ -34,6 +37,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(this.role.equals(Role.SUPER)) return List.of(new SimpleGrantedAuthority("ROLE_SUPER"), new SimpleGrantedAuthority("ROLE_ADMIN"));
         if(this.role.equals(Role.ADMIN)) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return List.of(new SimpleGrantedAuthority("ROLE_SELLER"));
     }

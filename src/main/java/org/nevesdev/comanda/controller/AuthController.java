@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
+import org.nevesdev.comanda.dto.user.UserResponse;
 import org.nevesdev.comanda.model.user.User;
 import org.nevesdev.comanda.service.security.AuthService;
 import org.nevesdev.comanda.service.security.TokenService;
@@ -39,7 +40,7 @@ public class AuthController {
 
     @PostMapping("register")
     @SecurityRequirement(name = "bearer-key")
-    public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegister userRegister) {
+    public ResponseEntity<UserResponse> registerUser(@RequestBody @Valid UserRegister userRegister) {
         return ResponseEntity.status(201).body(authService.createUser(userRegister));
     }
 

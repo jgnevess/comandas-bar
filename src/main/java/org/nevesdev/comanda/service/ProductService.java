@@ -54,14 +54,14 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated getById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
+        Product product = this.getProduct(id);
         int quantity = this.getStorageQuantity(product);
         return new ProductCreated(product, quantity);
     }
 
     @Override
     public ProductCreated updateProduct(Long id, ProductUpdate productUpdate) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
+        Product product = this.getProduct(id);
         product.updateProduct(productUpdate);
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
@@ -69,7 +69,7 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated fastActiveProduct(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
+        Product product = this.getProduct(id);
         product.setIsActive(!product.getIsActive());
         product = productRepository.save(product);
         return new ProductCreated(product, this.getStorageQuantity(product));
@@ -77,8 +77,8 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated addProduct(Long id, Integer quantity) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
-        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 500));
+        Product product = this.getProduct(id);
+        Storage storage = this.getStorage(id);
         storage.setQuantity(storage.getQuantity() + quantity);
         storage = storageRepository.save(storage);
         return new ProductCreated(product, storage.getQuantity());
@@ -86,8 +86,8 @@ public class ProductService implements ProductServiceInterface {
 
     @Override
     public ProductCreated removeProduct(Long id, Integer quantity) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
-        Storage storage = storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 404));
+        Product product = this.getProduct(id);
+        Storage storage = this.getStorage(id);
         int value = storage.getQuantity() - quantity;
         if(value < 0) throw new ProductNotFoundException("Sem produto", 404);
         storage.setQuantity(value);
@@ -119,6 +119,16 @@ public class ProductService implements ProductServiceInterface {
         return products.stream().filter(Product::getIsActive).map(ProductSelect::new).toList();
     }
 
+    @Override
+    public List<ProductSelect> getAllByDescription(String description) {
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .filter(Product::getIsActive)
+                .filter(product -> product.getDescription()
+                        .toLowerCase()
+                        .contains(description.toLowerCase()))
+                .map(ProductSelect::new).toList();
+    }
 
     //endregion
 
@@ -136,6 +146,15 @@ public class ProductService implements ProductServiceInterface {
         storage.setQuantity(0);
         storage = storageRepository.save(storage);
         return storage.getQuantity();
+    }
+
+    private Storage getStorage(long id) {
+        Product product = this.getProduct(id);
+        return storageRepository.findByProduct(product).orElseThrow(() -> new ProductNotFoundException("Storage error", 404));
+    }
+
+    private Product getProduct(long id) {
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found", 404));
     }
 
     //endregion

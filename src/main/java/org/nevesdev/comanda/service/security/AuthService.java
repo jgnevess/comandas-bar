@@ -3,10 +3,13 @@ package org.nevesdev.comanda.service.security;
 import jakarta.validation.Valid;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
+import org.nevesdev.comanda.dto.user.UserResponse;
 import org.nevesdev.comanda.exceptions.UsernameException;
+import org.nevesdev.comanda.model.user.Role;
 import org.nevesdev.comanda.model.user.User;
 import org.nevesdev.comanda.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,7 +30,7 @@ public class AuthService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
-    public User createUser(UserRegister userRegister) {
+    public UserResponse createUser(UserRegister userRegister) {
         if(userRegister.getPasswd().isBlank() || userRegister.getUsername().isBlank()) {
             throw new UsernameException("Username cannot be empty", 409);
         }
@@ -36,7 +39,8 @@ public class AuthService implements UserDetailsService {
         }
         userRegister.setPasswd(encryptPassword(userRegister.getPasswd()));
         User user = new User(userRegister);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return new UserResponse(user.getUsername(), user.getRole());
     }
 
     private String encryptPassword(String password) {

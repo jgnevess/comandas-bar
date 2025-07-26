@@ -2,7 +2,8 @@ package org.nevesdev.comanda.model.user;
 
 public enum Role {
     ADMIN("Admin"),
-    SELLER("Seller");
+    SELLER("Seller"),
+    SUPER("Super");
 
     private final String role;
 

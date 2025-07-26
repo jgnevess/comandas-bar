@@ -43,6 +43,11 @@ public class ProductController {
         return ResponseEntity.status(200).body(productServiceInterface.getById(id));
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<List<ProductSelect>> getAllByDescription(@RequestParam String description) {
+        return ResponseEntity.status(200).body(productServiceInterface.getAllByDescription(description));
+    }
+
     @PatchMapping("/add/{id}")
     public ResponseEntity<ProductCreated> addProduct(@PathVariable Long id, @RequestParam Integer quantity) {
         return ResponseEntity.status(200).body(productServiceInterface.addProduct(id,  quantity));
