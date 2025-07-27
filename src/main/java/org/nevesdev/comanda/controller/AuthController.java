@@ -52,6 +52,7 @@ public class AuthController {
             Authentication auth = this.authenticationManager.authenticate(login);
             String token = tokenService.generateToken((User) auth.getPrincipal());
             response.put("token", token);
+            response.put("barId", ((User) auth.getPrincipal()).getBar().getId().toString());
             response.put("userRole", ((User) auth.getPrincipal()).getRole().toString());
             return ResponseEntity.status(200).body(response);
         } catch (AuthenticationException e) {

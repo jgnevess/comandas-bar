@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.nevesdev.comanda.dto.bar.BarCreate;
+import org.nevesdev.comanda.model.bar.Bar;
 import org.nevesdev.comanda.model.user.Role;
 
 @Data
@@ -16,5 +18,6 @@ public class UserRegister {
     )
     private String passwd;
     private Role role;
+    private BarCreate barCreate;
 
 }

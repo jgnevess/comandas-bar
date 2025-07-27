@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.nevesdev.comanda.dto.user.UserLogin;
 import org.nevesdev.comanda.dto.user.UserRegister;
+import org.nevesdev.comanda.model.bar.Bar;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +29,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
     private Role role;
+
+    @OneToOne
+    private Bar bar;
 
     public User(UserRegister userRegister) {
         this.username = userRegister.getUsername();

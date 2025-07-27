@@ -6,6 +6,10 @@ Sistema completo para controle de vendas, com autenticação por perfil, control
 
 ## 🧑‍💼 Perfis de Usuário
 
+### 👨‍💼 Super
+
+- Cadastrar novos usuários
+
 ### 👨‍💼 Admin
 - Cadastrar, editar e inativar produtos
 - Controlar movimentações de estoque
